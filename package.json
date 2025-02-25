@@ -13,6 +13,7 @@
     "vite": "^6.2.0"
   },
   "dependencies": {
-    "@sqlite.org/sqlite-wasm": "^3.49.1-build1"
+    "@sqlite.org/sqlite-wasm": "^3.49.1-build1",
+    "ulid": "^2.3.0"
   }
 }
