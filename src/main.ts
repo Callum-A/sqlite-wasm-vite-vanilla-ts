@@ -70,14 +70,29 @@ const main = async () => {
   }
   if (needToCreateTables) {
     console.log('Creating tables due to initial setup');
-    myDb.write(CREATE_PERSON_SQL);
-    myDb.write(CREATE_DOG_SQL);
+    myDb.execute(CREATE_PERSON_SQL);
+    myDb.execute(CREATE_DOG_SQL);
   }
-  myDb.write('INSERT INTO person (name, age) VALUES (?, ?)', ['John', 24]);
-  myDb.write('INSERT INTO person (name, age) VALUES (?, ?)', ['Sarah', 19]);
-  myDb.write('INSERT INTO dog (name, age) VALUES (?, ?)', ['Riley', 4]);
-  myDb.write('INSERT INTO dog (name, age) VALUES (?, ?)', ['Dexter', 3]);
-  const people = await myDb.readMany(
+
+  // Gets the ID
+  const row = await myDb.queryOne(
+    'INSERT INTO person (name, age) VALUES (?, ?) RETURNING id',
+    ['John', 24]
+  );
+  console.log('Got ID: ', row['id']);
+  await myDb.queryOne('INSERT INTO person (name, age) VALUES (?, ?)', [
+    'Sarah',
+    19,
+  ]);
+  await myDb.queryOne('INSERT INTO dog (name, age) VALUES (?, ?)', [
+    'Riley',
+    4,
+  ]);
+  await myDb.queryOne('INSERT INTO dog (name, age) VALUES (?, ?)', [
+    'Dexter',
+    3,
+  ]);
+  const people = await myDb.queryMany(
     'SELECT * FROM person',
     [],
     Person.loadFromDB
@@ -88,7 +103,7 @@ const main = async () => {
     li.textContent = JSON.stringify(person);
     peopleList?.appendChild(li);
   }
-  const dogs = await myDb.readMany('SELECT * FROM dog', [], Dog.loadFromDB);
+  const dogs = await myDb.queryMany('SELECT * FROM dog', [], Dog.loadFromDB);
   for (const dog of dogs) {
     dog.woof();
     const li = document.createElement('li');
@@ -96,7 +111,7 @@ const main = async () => {
     dogsList?.appendChild(li);
   }
   await myDb.close();
-  deleteDB('test.db');
+  await deleteDB('test.db');
 };
 
 main();

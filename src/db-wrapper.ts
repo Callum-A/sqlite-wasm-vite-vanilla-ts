@@ -15,11 +15,12 @@ export class SqliteConnector {
     this.dbId = dbId;
   }
 
-  public async write(sql: string, params: any[] = []) {
+  public async execute(sql: string, params: any[] = []) {
     await this.promiser('exec', {
       sql,
       dbId: this.dbId,
       bind: params,
+      rowMode: 'object',
     });
   }
 
@@ -30,7 +31,7 @@ export class SqliteConnector {
     console.log(result);
   }
 
-  public async readMany<T>(
+  public async queryMany<T>(
     sql: string,
     params: any[] = [],
     handleRow: (row: any) => T = (r) => r
@@ -49,7 +50,7 @@ export class SqliteConnector {
     return processedRows;
   }
 
-  public async readOne(sql: string, params: any[] = []): Promise<any | null> {
+  public async queryOne(sql: string, params: any[] = []): Promise<any | null> {
     const result = await this.promiser('exec', {
       sql,
       dbId: this.dbId,
